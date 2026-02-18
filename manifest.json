@@ -2,10 +2,10 @@
   "name": "Windows 11 Web",
   "short_name": "Windows 11",
   "description": "Полноценная симуляция Windows 11 в браузере с поддержкой PWA",
-  "start_url": "./index.html",
-  "scope": "./",
+  "start_url": "/./index.html",
+  "scope": "/",
   "display": "fullscreen",
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui", "browser"],
   "orientation": "any",
   "background_color": "#1a1a2e",
   "theme_color": "#0078d4",
@@ -83,33 +83,33 @@
       "name": "Проводник",
       "short_name": "Проводник",
       "description": "Открыть проводник файлов",
-      "url": "./index.html?app=explorer",
+      "url": "/./index.html?app=explorer",
       "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Калькулятор",
       "short_name": "Калькулятор",
       "description": "Открыть калькулятор",
-      "url": "./index.html?app=calculator",
+      "url": "/./index.html?app=calculator",
       "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Параметры",
       "short_name": "Параметры",
       "description": "Открыть параметры системы",
-      "url": "./index.html?app=settings",
+      "url": "/./index.html?app=settings",
       "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Блокнот",
       "short_name": "Блокнот",
       "description": "Открыть блокнот",
-      "url": "./index.html?app=notepad",
+      "url": "/./index.html?app=notepad",
       "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     }
   ],
   "share_target": {
-    "action": "./index.html",
+    "action": "/./index.html",
     "method": "GET",
     "params": {
       "title": "title",
@@ -128,10 +128,15 @@
   },
   "file_handlers": [
     {
-      "action": "./index.html",
+      "action": "/./index.html",
       "accept": {
         "text/plain": [".txt"]
       }
     }
-  ]
+  ],
+  "serviceworker": {
+    "src": "/./service-worker.js",
+    "scope": "/",
+    "type": "text/javascript"
+  }
 }

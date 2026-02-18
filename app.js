@@ -188,9 +188,33 @@ function initLockScreen() {
 
 function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./service-worker.js')
-            .then(reg => console.log('Service Worker registered:', reg.scope))
-            .catch(err => console.log('Service Worker registration failed:', err));
+        // Регистрируем service worker с правильным scope для GitHub Pages
+        navigator.serviceWorker.register('./service-worker.js', {
+            scope: './'
+        })
+        .then(reg => {
+            console.log('[SW] Service Worker registered:', reg.scope);
+            
+            // Проверка обновлений
+            reg.addEventListener('updatefound', () => {
+                const newWorker = reg.installing;
+                console.log('[SW] Update found');
+                
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        addNotification('🔄', 'Обновление', 'Доступна новая версия. Обновите страницу.');
+                    }
+                });
+            });
+        })
+        .catch(err => {
+            console.error('[SW] Registration failed:', err);
+        });
+        
+        // Контроллер изменений
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            console.log('[SW] Controller changed');
+        });
     }
 }
 

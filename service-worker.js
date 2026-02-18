@@ -7,12 +7,16 @@ const CACHE_NAME = 'win11-cache-v1';
 const STATIC_CACHE = 'win11-static-v1';
 const DYNAMIC_CACHE = 'win11-dynamic-v1';
 
+// Базовый URL для GitHub Pages (замените на ваш репозиторий)
+const BASE_URL = './';
+
 // Файлы для кэширования при установке
 const STATIC_ASSETS = [
     './',
     './index.html',
     './style.css',
     './app.js',
+    './apps.js',
     './manifest.json',
     './icons/icon-192.png',
     './icons/icon-512.png'

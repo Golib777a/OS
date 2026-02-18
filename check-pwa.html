@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Проверка</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #1a1a2e;
+            color: white;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { margin-bottom: 20px; }
+        .check {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .check.ok { border-left: 4px solid #00ff00; }
+        .check.error { border-left: 4px solid #ff0000; }
+        .check.warn { border-left: 4px solid #ffaa00; }
+        .icon { font-size: 24px; }
+        .status { font-weight: bold; }
+        .ok .status { color: #00ff00; }
+        .error .status { color: #ff0000; }
+        .warn .status { color: #ffaa00; }
+        button {
+            padding: 12px 24px;
+            background: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px 10px 0;
+        }
+        button:hover { background: #106ebe; }
+        pre {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+        .install-btn {
+            background: linear-gradient(135deg, #0078d4, #00bcf2);
+            font-size: 18px;
+            padding: 16px 32px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 PWA Диагностика</h1>
+        <p style="margin-bottom: 20px; opacity: 0.8;">Проверка возможности установки PWA</p>
+        
+        <div id="checks"></div>
+        
+        <div style="margin-top: 30px;">
+            <button class="install-btn" id="install-btn" style="display: none;">📥 Установить приложение</button>
+            <button onclick="location.href='index.html'">🏠 Вернуться к приложению</button>
+            <button onclick="location.reload()">🔄 Обновить</button>
+        </div>
+        
+        <div id="debug-info" style="margin-top: 30px;"></div>
+    </div>
+    
+    <script>
+        let deferredPrompt = null;
+        
+        async function runChecks() {
+            const checksEl = document.getElementById('checks');
+            const checks = [];
+            
+            // 1. Проверка HTTPS
+            const isHttps = window.location.protocol === 'https:' || window.location.hostname === 'localhost';
+            checks.push({
+                name: 'HTTPS соединение',
+                ok: isHttps,
+                message: isHttps ? 'Используется HTTPS' : 'Требуется HTTPS для PWA (или localhost)',
+                warn: !isHttps && window.location.protocol === 'file:'
+            });
+            
+            // 2. Проверка Service Worker
+            let swSupported = 'serviceWorker' in navigator;
+            checks.push({
+                name: 'Service Worker',
+                ok: swSupported,
+                message: swSupported ? 'Поддерживается браузером' : 'Не поддерживается этим браузером'
+            });
+            
+            // 3. Проверка manifest.json
+            let manifestOk = false;
+            let manifestData = null;
+            try {
+                const response = await fetch('manifest.json');
+                if (response.ok) {
+                    manifestData = await response.json();
+                    manifestOk = true;
+                }
+            } catch (e) {
+                manifestOk = false;
+            }
+            
+            checks.push({
+                name: 'manifest.json',
+                ok: manifestOk,
+                message: manifestOk ? 'Найден и валиден' : 'Не найден или ошибка',
+                details: manifestData ? `name: ${manifestData.name}, start_url: ${manifestData.start_url}, display: ${manifestData.display}` : ''
+            });
+            
+            // 4. Проверка иконок
+            let iconsOk = manifestData && manifestData.icons && manifestData.icons.length > 0;
+            checks.push({
+                name: 'Иконки для PWA',
+                ok: iconsOk,
+                message: iconsOk ? `Найдено ${manifestData.icons.length} иконок` : 'Иконки не указаны в manifest.json'
+            });
+            
+            // 5. Проверка display режима
+            let displayOk = manifestData && ['fullscreen', 'standalone', 'minimal-ui'].includes(manifestData.display);
+            checks.push({
+                name: 'Режим отображения',
+                ok: displayOk,
+                message: displayOk ? `Установлен "${manifestData.display}"` : 'Режим не поддерживает PWA'
+            });
+            
+            // 6. beforeinstallprompt событие
+            let installEventAvailable = false;
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                installEventAvailable = true;
+                document.getElementById('install-btn').style.display = 'block';
+            }, { once: true });
+            
+            // Ждём немного для события
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            checks.push({
+                name: 'Событие установки',
+                ok: installEventAvailable,
+                message: installEventAvailable ? 'Доступно для этого браузера' : 'Браузер не поддерживает установку (iOS Safari?)',
+                warn: !installEventAvailable
+            });
+            
+            // 7. Проверка User Agent
+            const ua = navigator.userAgent;
+            const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+            const isAndroid = /Android/.test(ua);
+            
+            checks.push({
+                name: 'Платформа',
+                ok: true,
+                message: isIOS ? 'iOS Safari' : isAndroid ? 'Android' : 'Desktop',
+                details: ua.substring(0, 100) + '...'
+            });
+            
+            // iOS特别说明
+            if (isIOS) {
+                checks.push({
+                    name: '📱 iOS Установка',
+                    ok: false,
+                    message: 'iOS Safari не поддерживает автоматическую установку PWA',
+                    details: 'Нажмите "Поделиться" (⬆️) → "На экран «Домой»" для установки',
+                    warn: true
+                });
+            }
+            
+            // Рендеринг проверок
+            checksEl.innerHTML = checks.map(check => `
+                <div class="check ${check.ok ? 'ok' : check.warn ? 'warn' : 'error'}">
+                    <span class="icon">${check.ok ? '✅' : check.warn ? '⚠️' : '❌'}</span>
+                    <div>
+                        <div class="status">${check.name}</div>
+                        <div style="opacity: 0.8; font-size: 14px;">${check.message}</div>
+                        ${check.details ? `<pre>${check.details}</pre>` : ''}
+                    </div>
+                </div>
+            `).join('');
+            
+            // Debug информация
+            document.getElementById('debug-info').innerHTML = `
+                <h3>📊 Техническая информация</h3>
+                <pre>
+URL: ${window.location.href}
+Protocol: ${window.location.protocol}
+Hostname: ${window.location.hostname}
+User Agent: ${navigator.userAgent}
+Language: ${navigator.language}
+Platform: ${navigator.platform}
+Online: ${navigator.onLine}
+Service Worker: ${'serviceWorker' in navigator}
+BeforeInstallPrompt: ${deferredPrompt !== null}
+                </pre>
+            `;
+            
+            // Кнопка установки
+            const installBtn = document.getElementById('install-btn');
+            installBtn.onclick = async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log('User choice:', outcome);
+                    deferredPrompt = null;
+                    installBtn.style.display = 'none';
+                }
+            };
+        }
+        
+        // Запуск проверок
+        runChecks();
+    </script>
+</body>
+</html>
