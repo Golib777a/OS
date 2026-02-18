@@ -1,10 +1,11 @@
 {
   "name": "Windows 11 Web",
-  "short_name": "Win11",
+  "short_name": "Windows 11",
   "description": "Полноценная симуляция Windows 11 в браузере с поддержкой PWA",
   "start_url": "./index.html",
   "scope": "./",
-  "display": "standalone",
+  "display": "fullscreen",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "orientation": "any",
   "background_color": "#1a1a2e",
   "theme_color": "#0078d4",
@@ -118,8 +119,19 @@
   },
   "related_applications": [],
   "prefer_related_applications": false,
-  "iarc_rating_id": "",
   "edge_side_panel": {
     "preferred_width": 400
-  }
+  },
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "file_handlers": [
+    {
+      "action": "./index.html",
+      "accept": {
+        "text/plain": [".txt"]
+      }
+    }
+  ]
 }

@@ -164,6 +164,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initWidgets();
     registerServiceWorker();
     initTheme();
+    initPWAInstall();
+    initFullscreen();
 });
 
 function initBootScreen() {
@@ -1448,11 +1450,137 @@ function createVideoContent() {
 }
 
 // PWA: Обработка установки
-let deferredPrompt;
+let deferredPrompt = null;
+
+function initPWAInstall() {
+    const installBanner = document.getElementById('pwa-install-banner');
+    const installBtn = document.getElementById('pwa-install-btn');
+    const closeBtn = document.getElementById('pwa-install-close');
+    
+    // Обработка beforeinstallprompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        console.log('[PWA] Установка доступна');
+        
+        // Показываем баннер в меню Пуск
+        if (installBanner) {
+            installBanner.style.display = 'block';
+        }
+        
+        // Альтернативно: добавляем кнопку в панель задач
+        addInstallNotification();
+    });
+    
+    // Обработка успешной установки
+    window.addEventListener('appinstalled', () => {
+        console.log('[PWA] Приложение установлено');
+        if (installBanner) {
+            installBanner.style.display = 'none';
+        }
+        deferredPrompt = null;
+        showToast('✅', 'Windows 11', 'Приложение успешно установлено');
+    });
+    
+    // Кнопка установки в баннере
+    if (installBtn) {
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) {
+                showToast('⚠️', 'Установка', 'Установка недоступна. Попробуйте добавить на главный экран через меню браузера.');
+                return;
+            }
+            
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log('[PWA] Выбор пользователя:', outcome);
+            deferredPrompt = null;
+            
+            if (installBanner) {
+                installBanner.style.display = 'none';
+            }
+        });
+    }
+    
+    // Закрытие баннера
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            if (installBanner) {
+                installBanner.style.display = 'none';
+            }
+        });
+    }
+}
+
+function addInstallNotification() {
+    // Проверяем, не показывали ли уже
+    if (sessionStorage.getItem('pwa-install-shown')) return;
+    
+    setTimeout(() => {
+        showToast('📥', 'Установка', 'Нажмите "Поделиться" → "На экран «Домой»"');
+        sessionStorage.setItem('pwa-install-shown', 'true');
+    }, 3000);
+}
+
+// Полноэкранный режим
+function initFullscreen() {
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
+    
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+    }
+    
+    // Отслеживание изменения полноэкранного режима
+    document.addEventListener('fullscreenchange', () => {
+        state.fullscreen = !!document.fullscreenElement;
+        const btn = document.getElementById('fullscreen-btn');
+        if (btn) {
+            btn.textContent = state.fullscreen ? '⛶' : '⛶';
+        }
+    });
+}
+
+function toggleFullscreen() {
+    const elem = document.documentElement;
+    
+    if (!document.fullscreenElement) {
+        // Вход в полноэкранный режим
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().catch(err => {
+                console.log('[Fullscreen] Error:', err);
+                // Fallback для iOS
+                if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                }
+            });
+        } else if (elem.webkitRequestFullscreen) {
+            // Safari iOS
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+            // IE/Edge
+            elem.msRequestFullscreen();
+        }
+        
+        state.fullscreen = true;
+        showToast('⛶', 'Полный экран', 'Нажмите F11 или кнопку для выхода');
+    } else {
+        // Выход из полноэкранного режима
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+        
+        state.fullscreen = false;
+    }
+}
+
+// PWA: Обработка установки
+let deferredPromptOld;
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
-    deferredPrompt = e;
-    addNotification('📥', 'Установка', 'Приложение можно установить на устройство');
+    deferredPromptOld = e;
 });
 
 // PWA: Обновление доступно
