@@ -1,0 +1,48 @@
+{
+  "name": "win11-pwa",
+  "version": "1.0.0",
+  "description": "Windows 11 Web - Полноценная симуляция Windows 11 в браузере с поддержкой PWA",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx live-server --port=8080",
+    "build": "echo 'No build step required - static files'",
+    "validate-manifest": "node -e \"console.log(JSON.parse(require('fs').readFileSync('manifest.json', 'utf8')))\"",
+    "test": "echo 'No tests configured'"
+  },
+  "keywords": [
+    "windows",
+    "windows-11",
+    "pwa",
+    "progressive-web-app",
+    "desktop-simulation",
+    "web-os",
+    "html5",
+    "css3",
+    "javascript"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/win11-pwa.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/win11-pwa/issues"
+  },
+  "homepage": "https://yourusername.github.io/win11-pwa/",
+  "devDependencies": {
+    "serve": "^14.2.0",
+    "live-server": "^1.2.2"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "last 2 Edge versions"
+  ]
+}

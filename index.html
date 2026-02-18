@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0078d4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Windows 11">
+    <title>Windows 11</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="icons/icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+</head>
+<body>
+    <!-- Экран загрузки -->
+    <div id="boot-screen">
+        <div class="boot-logo">
+            <svg viewBox="0 0 88 88" width="88" height="88">
+                <path fill="#00a4ef" d="M0 12.402l35.687-4.86.016 34.423-35.67.201zm35.67 33.529l.028 34.455L.03 75.482l-.03-33.516zm4.326-38.944L87.79 0v41.528l-47.794.225zm47.765 37.925v42.53l-47.736-6.866-.033-35.347z"/>
+            </svg>
+        </div>
+        <div class="boot-spinner"></div>
+    </div>
+
+    <!-- Экран блокировки -->
+    <div id="lock-screen">
+        <div class="lock-background"></div>
+        <div class="lock-content">
+            <div class="lock-time" id="lock-time">12:00</div>
+            <div class="lock-date" id="lock-date">Понедельник, 1 января</div>
+            <div class="lock-hint">Нажмите для входа</div>
+        </div>
+    </div>
+
+    <!-- Рабочий стол -->
+    <div id="desktop">
+        <!-- Иконки рабочего стола -->
+        <div class="desktop-icons" id="desktop-icons">
+            <div class="desktop-icon" data-app="explorer">
+                <div class="icon-folder">📁</div>
+                <span>Проводник</span>
+            </div>
+            <div class="desktop-icon" data-app="edge">
+                <div class="icon-edge">🌐</div>
+                <span>Edge</span>
+            </div>
+            <div class="desktop-icon" data-app="word">
+                <div class="icon-word">📝</div>
+                <span>Word</span>
+            </div>
+            <div class="desktop-icon" data-app="excel">
+                <div class="icon-excel">📊</div>
+                <span>Excel</span>
+            </div>
+            <div class="desktop-icon" data-app="calculator">
+                <div class="icon-calc">🔢</div>
+                <span>Калькулятор</span>
+            </div>
+            <div class="desktop-icon" data-app="paint">
+                <div class="icon-paint">🎨</div>
+                <span>Paint</span>
+            </div>
+            <div class="desktop-icon" data-app="settings">
+                <div class="icon-settings">⚙️</div>
+                <span>Параметры</span>
+            </div>
+            <div class="desktop-icon" data-app="store">
+                <div class="icon-store">🛒</div>
+                <span>Store</span>
+            </div>
+            <div class="desktop-icon" data-app="photos">
+                <div class="icon-photos">🖼️</div>
+                <span>Фото</span>
+            </div>
+            <div class="desktop-icon" data-app="terminal">
+                <div class="icon-terminal">💻</div>
+                <span>Терминал</span>
+            </div>
+            <div class="desktop-icon" data-app="notepad">
+                <div class="icon-notepad">📄</div>
+                <span>Блокнот</span>
+            </div>
+            <div class="desktop-icon" data-app="camera">
+                <div class="icon-camera">📷</div>
+                <span>Камера</span>
+            </div>
+            <div class="desktop-icon" data-app="weather">
+                <div class="icon-weather">🌤️</div>
+                <span>Погода</span>
+            </div>
+            <div class="desktop-icon" data-app="taskmanager">
+                <div class="icon-taskmanager">📈</div>
+                <span>Диспетчер</span>
+            </div>
+            <div class="desktop-icon" data-app="snake">
+                <div class="icon-snake">🐍</div>
+                <span>Змейка</span>
+            </div>
+            <div class="desktop-icon" data-app="minesweeper">
+                <div class="icon-minesweeper">💣</div>
+                <span>Сапёр</span>
+            </div>
+        </div>
+
+        <!-- Окна приложений -->
+        <div id="windows-container"></div>
+
+        <!-- Виджеты -->
+        <div id="widgets-panel" class="side-panel">
+            <div class="panel-header">
+                <h2>Виджеты</h2>
+                <button class="panel-close" id="widgets-close">✕</button>
+            </div>
+            <div class="widgets-content">
+                <div class="widget weather">
+                    <h3>🌤️ Погода</h3>
+                    <div class="weather-temp">22°C</div>
+                    <div class="weather-desc">Ясно</div>
+                </div>
+                <div class="widget news">
+                    <h3>📰 Новости</h3>
+                    <div class="news-item">Добро пожаловать в Windows 11 Web!</div>
+                    <div class="news-item">PWA приложение готово к работе</div>
+                </div>
+                <div class="widget calendar">
+                    <h3>📅 Календарь</h3>
+                    <div id="widget-calendar"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Панель уведомлений -->
+        <div id="notifications-panel" class="side-panel">
+            <div class="panel-header">
+                <h2>Уведомления</h2>
+                <button class="panel-close" id="notifications-close">✕</button>
+            </div>
+            <div class="notifications-content" id="notifications-content">
+                <div class="notification">
+                    <div class="notification-icon">🎉</div>
+                    <div class="notification-text">
+                        <strong>Добро пожаловать!</strong>
+                        <p>Windows 11 Web готов к работе</p>
+                    </div>
+                </div>
+            </div>
+            <div class="quick-settings">
+                <button class="quick-btn active" id="wifi-btn">📶 Wi-Fi</button>
+                <button class="quick-btn active" id="bluetooth-btn">📱 Bluetooth</button>
+                <button class="quick-btn" id="airplane-btn">✈️ В самолёте</button>
+                <button class="quick-btn" id="dnd-btn">🌙 Не беспокоить</button>
+            </div>
+            <div class="brightness-slider">
+                <span>☀️</span>
+                <input type="range" id="brightness" min="0" max="100" value="100">
+            </div>
+        </div>
+
+        <!-- Меню Пуск -->
+        <div id="start-menu">
+            <div class="start-search">
+                <input type="text" placeholder="Поиск приложений, настроек и документов" id="start-search-input">
+            </div>
+            <div class="start-pinned" id="start-pinned">
+                <h3>Закреплённые</h3>
+                <div class="pinned-grid">
+                    <div class="pinned-app" data-app="edge">
+                        <div class="app-icon">🌐</div>
+                        <span>Edge</span>
+                    </div>
+                    <div class="pinned-app" data-app="word">
+                        <div class="app-icon">📝</div>
+                        <span>Word</span>
+                    </div>
+                    <div class="pinned-app" data-app="excel">
+                        <div class="app-icon">📊</div>
+                        <span>Excel</span>
+                    </div>
+                    <div class="pinned-app" data-app="powerpoint">
+                        <div class="app-icon">📽️</div>
+                        <span>PowerPoint</span>
+                    </div>
+                    <div class="pinned-app" data-app="calculator">
+                        <div class="app-icon">🔢</div>
+                        <span>Калькулятор</span>
+                    </div>
+                    <div class="pinned-app" data-app="settings">
+                        <div class="app-icon">⚙️</div>
+                        <span>Параметры</span>
+                    </div>
+                    <div class="pinned-app" data-app="store">
+                        <div class="app-icon">🛒</div>
+                        <span>Store</span>
+                    </div>
+                    <div class="pinned-app" data-app="photos">
+                        <div class="app-icon">🖼️</div>
+                        <span>Фото</span>
+                    </div>
+                    <div class="pinned-app" data-app="terminal">
+                        <div class="app-icon">💻</div>
+                        <span>Терминал</span>
+                    </div>
+                    <div class="pinned-app" data-app="notepad">
+                        <div class="app-icon">📄</div>
+                        <span>Блокнот</span>
+                    </div>
+                    <div class="pinned-app" data-app="paint">
+                        <div class="app-icon">🎨</div>
+                        <span>Paint</span>
+                    </div>
+                    <div class="pinned-app" data-app="camera">
+                        <div class="app-icon">📷</div>
+                        <span>Камера</span>
+                    </div>
+                    <div class="pinned-app" data-app="weather">
+                        <div class="app-icon">🌤️</div>
+                        <span>Погода</span>
+                    </div>
+                    <div class="pinned-app" data-app="maps">
+                        <div class="app-icon">🗺️</div>
+                        <span>Карты</span>
+                    </div>
+                    <div class="pinned-app" data-app="music">
+                        <div class="app-icon">🎵</div>
+                        <span>Музыка</span>
+                    </div>
+                    <div class="pinned-app" data-app="video">
+                        <div class="app-icon">🎬</div>
+                        <span>Видео</span>
+                    </div>
+                    <div class="pinned-app" data-app="calendar">
+                        <div class="app-icon">📅</div>
+                        <span>Календарь</span>
+                    </div>
+                    <div class="pinned-app" data-app="mail">
+                        <div class="app-icon">📧</div>
+                        <span>Почта</span>
+                    </div>
+                    <div class="pinned-app" data-app="taskmanager">
+                        <div class="app-icon">📈</div>
+                        <span>Диспетчер</span>
+                    </div>
+                    <div class="pinned-app" data-app="snake">
+                        <div class="app-icon">🐍</div>
+                        <span>Змейка</span>
+                    </div>
+                    <div class="pinned-app" data-app="minesweeper">
+                        <div class="app-icon">💣</div>
+                        <span>Сапёр</span>
+                    </div>
+                    <div class="pinned-app" data-app="ticTacToe">
+                        <div class="app-icon">⭕</div>
+                        <span>Крестики</span>
+                    </div>
+                    <div class="pinned-app" data-app="notes">
+                        <div class="app-icon">📌</div>
+                        <span>Заметки</span>
+                    </div>
+                    <div class="pinned-app" data-app="todo">
+                        <div class="app-icon">✅</div>
+                        <span>Задачи</span>
+                    </div>
+                    <div class="pinned-app" data-app="password">
+                        <div class="app-icon">🔐</div>
+                        <span>Пароли</span>
+                    </div>
+                    <div class="pinned-app" data-app="currency">
+                        <div class="app-icon">💱</div>
+                        <span>Валюты</span>
+                    </div>
+                    <div class="pinned-app" data-app="voice">
+                        <div class="app-icon">🎤</div>
+                        <span>Диктофон</span>
+                    </div>
+                    <div class="pinned-app" data-app="pomodoro">
+                        <div class="app-icon">🍅</div>
+                        <span>Помодоро</span>
+                    </div>
+                    <div class="pinned-app" data-app="unitConverter">
+                        <div class="app-icon">📏</div>
+                        <span>Конвертер</span>
+                    </div>
+                    <div class="pinned-app" data-app="ai">
+                        <div class="app-icon">🤖</div>
+                        <span>ИИ</span>
+                    </div>
+                </div>
+            </div>
+            <div class="start-recommended" id="start-recommended">
+                <h3>Рекомендуемые</h3>
+                <div class="recommended-list">
+                    <div class="recommended-item">
+                        <div class="recent-icon">📄</div>
+                        <div class="recent-info">
+                            <span class="recent-name">Документ1.docx</span>
+                            <span class="recent-time">Открыт 2 часа назад</span>
+                        </div>
+                    </div>
+                    <div class="recommended-item">
+                        <div class="recent-icon">📊</div>
+                        <div class="recent-info">
+                            <span class="recent-name">Отчёт.xlsx</span>
+                            <span class="recent-time">Открыт вчера</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="start-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">👤</div>
+                    <span class="user-name">Пользователь</span>
+                </div>
+                <button class="power-btn" id="power-btn">⏻</button>
+            </div>
+        </div>
+
+        <!-- Панель задач -->
+        <div id="taskbar">
+            <div class="taskbar-start">
+                <button id="start-btn" title="Пуск">
+                    <svg viewBox="0 0 88 88" width="24" height="24">
+                        <path fill="#00a4ef" d="M0 12.402l35.687-4.86.016 34.423-35.67.201zm35.67 33.529l.028 34.455L.03 75.482l-.03-33.516zm4.326-38.944L87.79 0v41.528l-47.794.225zm47.765 37.925v42.53l-47.736-6.866-.033-35.347z"/>
+                    </svg>
+                </button>
+                <button id="search-btn" title="Поиск">🔍</button>
+                <button id="widgets-btn" title="Виджеты">📊</button>
+                <button id="chat-btn" title="Чат">💬</button>
+            </div>
+            <div class="taskbar-apps" id="taskbar-apps">
+                <!-- Открытые приложения -->
+            </div>
+            <div class="taskbar-tray">
+                <button class="tray-btn" id="language-btn">RU</button>
+                <button class="tray-btn" id="notifications-btn">🔔</button>
+                <div class="system-tray" id="system-tray">
+                    <span class="tray-icon">📶</span>
+                    <span class="tray-icon">🔊</span>
+                    <span class="tray-time" id="taskbar-time">12:00</span>
+                </div>
+                <button class="show-desktop" id="show-desktop" title="Показать рабочий стол"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Контекстное меню -->
+    <script src="apps.js"></script>
+    <div id="context-menu" class="context-menu">
+        <div class="context-item" data-action="refresh">🔄 Обновить</div>
+        <div class="context-item" data-action="view">👁️ Вид</div>
+        <div class="context-item" data-action="sort">📋 Сортировка</div>
+        <div class="context-divider"></div>
+        <div class="context-item" data-action="new">📁 Создать</div>
+        <div class="context-item" data-action="settings">⚙️ Параметры</div>
+        <div class="context-item" data-action="personalize">🎨 Персонализация</div>
+    </div>
+
+    <!-- Меню управления окном -->
+    <div id="window-context-menu" class="context-menu">
+        <div class="context-item" data-action="restore">Восстановить</div>
+        <div class="context-item" data-action="minimize">Свернуть</div>
+        <div class="context-item" data-action="maximize">Развернуть</div>
+        <div class="context-divider"></div>
+        <div class="context-item" data-action="close">Закрыть</div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

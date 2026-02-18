@@ -1,0 +1,28 @@
+# Node modules
+node_modules/
+
+# Лог файлы
+*.log
+npm-debug.log*
+
+# ОС файлы
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Временные файлы
+*.tmp
+*.temp
+
+# Скриншоты (если будут добавлены)
+screenshots/
+
+# Тесты
+coverage/
+.nyc_output/
